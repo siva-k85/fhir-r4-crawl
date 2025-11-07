@@ -1,0 +1,12 @@
+# Crawl4AI Crawler Configuration
+# Controls page fetching and content extraction behavior
+
+cache_mode: "enabled"
+wait_until: "domcontentloaded"
+page_timeout: 45000
+scan_full_page: false
+word_count_threshold: 50
+verbose: true
+screenshot: false
+process_iframes: false
+remove_overlay_elements: true

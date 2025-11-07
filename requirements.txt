@@ -1,0 +1,21 @@
+# Core Crawling
+crawl4ai>=0.7.0
+playwright>=1.40.0
+aiohttp>=3.9.0
+beautifulsoup4>=4.12.0
+
+# Data Processing
+pandas>=2.1.0
+pyyaml>=6.0.0
+
+# PDF Generation
+WeasyPrint>=60.0
+Markdown>=3.5.0
+Pygments>=2.17.0
+
+# Utilities
+python-dateutil>=2.8.0
+requests>=2.31.0
+
+# Optional: Firecrawl API
+# firecrawl-py>=0.1.0  # Uncomment if using Firecrawl cross-check

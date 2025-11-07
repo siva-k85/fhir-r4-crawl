@@ -1,0 +1,9 @@
+# Crawl4AI Browser Configuration
+# Controls headless browser behavior for crawling
+
+headless: true
+text_mode: true
+user_agent: "Crawl4AI/0.7 (FHIR R4 Documentation Crawler; Symphony Corp; contact: data@symphonycorp.com)"
+verbose: true
+extra_headers:
+  Accept-Language: "en-US,en;q=0.9"
