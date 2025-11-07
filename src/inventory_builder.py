@@ -187,9 +187,15 @@ Generated: {get_timestamp()}
 |--------|-------|
 """
 
-        for status in sorted(status_counts.keys()):
+        # Filter out None and sort
+        valid_statuses = [s for s in status_counts.keys() if s is not None]
+        for status in sorted(valid_statuses):
             count = status_counts[status]
             summary += f"| {status} | {count} |\n"
+
+        # Add None status if it exists
+        if None in status_counts:
+            summary += f"| unknown | {status_counts[None]} |\n"
 
         summary += f"""
 ## Content Types

@@ -10,3 +10,4 @@ verbose: true
 screenshot: false
 process_iframes: false
 remove_overlay_elements: true
+max_depth: 1

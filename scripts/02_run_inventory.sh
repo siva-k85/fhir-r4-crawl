@@ -23,15 +23,14 @@ fi
 # Run Crawl4AI CLI inventory scan
 echo "→ Running breadth-first crawl (this may take a few minutes)..."
 echo "  Target: https://hl7.org/fhir/R4/"
-echo "  Max depth: 1"
+echo "  Strategy: BFS (breadth-first)"
 echo "  Max pages: 400"
 echo ""
 
-crwl https://hl7.org/fhir/R4/ \
+crwl crawl https://hl7.org/fhir/R4/ \
     -B docs/CONFIG/browser.yml \
     -C docs/CONFIG/crawler.yml \
     --deep-crawl bfs \
-    --max-depth 1 \
     --max-pages 400 \
     -o all \
     > logs/inventory_bfs.json

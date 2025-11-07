@@ -62,14 +62,10 @@ class MarkdownExtractor:
                 ContentTypeFilter
             )
 
-            # Define filters
+            # Define filters - simplified for Crawl4AI 0.7.6
             filter_chain = FilterChain([
                 DomainFilter(allowed_domains=["hl7.org"]),
                 URLPatternFilter(patterns=["*hl7.org/fhir/R4/*"]),
-                URLPatternFilter(
-                    patterns=["*R5/*", "*R4B/*", "*R3/*", "*R2/*", "*.zip", "*.tgz", "*/ballot/*"],
-                    allow=False
-                ),
                 ContentTypeFilter(allowed_types=["text/html"])
             ])
 

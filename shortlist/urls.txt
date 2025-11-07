@@ -1,0 +1,10 @@
+https://hl7.org/fhir/R4/patient.html
+https://hl7.org/fhir/R4/coverage.html
+https://hl7.org/fhir/R4/explanationofbenefit.html
+https://hl7.org/fhir/R4/search.html
+https://hl7.org/fhir/R4/searchparameter.html
+https://hl7.org/fhir/R4/datatypes.html
+https://hl7.org/fhir/R4/structuredefinition.html
+https://hl7.org/fhir/R4/terminologies.html
+https://hl7.org/fhir/R4/codesystem.html
+https://hl7.org/fhir/R4/valueset.html
