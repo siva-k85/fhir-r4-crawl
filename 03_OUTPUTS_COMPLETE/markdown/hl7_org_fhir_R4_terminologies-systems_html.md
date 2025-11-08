@@ -1,8 +1,8 @@
 ---
 url: https://hl7.org/fhir/R4/terminologies-systems.html
 title: Unknown
-crawled: unknown
-depth: 0
+source: web_crawl
+extracted: crawl4ai_web_crawler
 ---
 
 [![logo fhir](https://hl7.org/fhir/R4/assets/images/fhir-logo-www.png) ](http://hl7.org/fhir)

@@ -320,7 +320,7 @@ with open(output_file, 'w', encoding='utf-8') as f:
 
 For each extracted file, we validated:
 
-✅ **File Size**: 34KB - 699KB (substantial content, not CAPTCHA stub)
+✅ **File Size**: 10.5KB - 699KB (substantial content, not CAPTCHA stub)
 ✅ **FHIR Headers**: Contains "Resource", "Scope and Usage", "Boundaries"
 ✅ **Resource Names**: Patient, Coverage, ExplanationOfBenefit appear in correct files
 ✅ **No CAPTCHA Text**: No "Let's confirm you are human" strings

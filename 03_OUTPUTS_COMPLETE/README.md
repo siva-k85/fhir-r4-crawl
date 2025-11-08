@@ -16,7 +16,7 @@ This directory contains **55 high-quality markdown files** extracted from FHIR R
 
 All files have been validated for:
 - ✅ Actual FHIR content (no CAPTCHA pages)
-- ✅ Substantial content (34KB - 699KB per file)
+- ✅ Substantial content (10.5KB - 699KB per file)
 - ✅ Valid UTF-8 encoding
 - ✅ YAML metadata frontmatter
 - ✅ R4-only content (no version mixing)
@@ -227,7 +227,7 @@ find markdown -name "*.md" -size -10k
 ```
 
 **Expected Output**:
-- Smallest file: ~34KB (terminologies.md)
+- Smallest file: ~10.5KB (terminologies.md)
 - Largest file: ~699KB (explanationofbenefit.md)
 - Average: ~50KB
 - No files under 10KB

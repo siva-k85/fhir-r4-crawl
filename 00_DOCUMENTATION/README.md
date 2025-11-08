@@ -25,19 +25,19 @@ This crawl was conducted to extract clean, LLM-ready markdown documentation from
 ### Excluded
 - ❌ Other FHIR versions (R5, R4B, R3, R2)
 - ❌ Ballot/draft versions
-- ❌ Binary downloads (.zip, .tgz, .xml, .json files)
 - ❌ External domains (even if linked from R4 pages)
 - ❌ Provider-focused or clinical resources not needed for payer demo
+
+**Note**: The official FHIR R4 specification ZIP (fhir-spec.zip) is downloaded and used for local HTML-to-markdown conversion to bypass CAPTCHA blocking on certain pages. This is the recommended bulk download method from HL7.
 
 ---
 
 ## Method
 
 ### Technology Stack
-- **Crawl4AI unknown**: Modern async web crawler optimized for LLMs
-- **Playwright**: Headless Chromium browser automation
+- **Crawl4AI 0.7.6**: Modern async web crawler optimized for LLMs
+- **Playwright 1.55.0**: Headless Chromium browser automation
 - **Python 3.14.0**: Orchestration and data processing
-- **WeasyPrint**: PDF generation for documentation
 
 ### Approach: Hybrid CLI + Python API
 
@@ -50,46 +50,51 @@ This crawl was conducted to extract clean, LLM-ready markdown documentation from
 
 **Command**:
 ```bash
-crwl https://hl7.org/fhir/R4/ \
-  -B docs/CONFIG/browser.yml \
-  -C docs/CONFIG/crawler.yml \
-  --deep-crawl bfs --max-depth 1 --max-pages 400 \
+crwl crawl https://hl7.org/fhir/R4/ \
+  -B 02_CONFIGURATION/CONFIG/browser.yml \
+  -C 02_CONFIGURATION/CONFIG/crawler.yml \
+  --deep-crawl bfs \
+  --max-pages 400 \
   -o all > logs/inventory_bfs.json
 ```
 
-**Output**: `inventory/links.csv` with URL, depth, status, content-type, parent
+**Note**: The `max_depth: 1` setting is configured in `crawler.yml`, not as a CLI flag.
+
+**Output**: `01_INPUTS_VALIDATED/inventory/links.csv` with URL, depth, status, content-type, parent
 
 #### Step 2: Shortlist
 - **Method**: Manual selection based on payer use case
 - **Count**: 10 seed URLs (core resources + shared components)
-- **Rationale**: See `shortlist/rationale.md`
+- **Rationale**: See `01_INPUTS_VALIDATED/shortlist/rationale.md`
 
-#### Step 3: Extraction (Python API)
-- **Tool**: Crawl4AI Python API with custom filters
-- **Strategy**: BFS per seed URL
-- **Depth**: 1 (capture seed + immediate child pages)
-- **Max Pages**: 50 per seed
-- **Filters**:
-  - Domain: hl7.org only
-  - URL Pattern: `*hl7.org/fhir/R4/*`
-  - Blocked: `*R5/*`, `*R4B/*`, `*R3/*`, `*R2/*`, `*.zip`, `*.tgz`, `*/ballot/*`
-  - Content-Type: `text/html` only
+#### Step 3: Extraction (Hybrid Approach)
+- **Web Crawl**: Crawl4AI Python API with custom filters
+  - Strategy: BFS per seed URL
+  - Depth: 1 (capture seed + immediate child pages)
+  - Max Pages: 50 per seed
+  - Filters: Domain (hl7.org), URL pattern (*R4/*), Content-type (text/html)
+- **Official Download**: FHIR R4 specification ZIP
+  - Source: https://hl7.org/fhir/R4/fhir-spec.zip
+  - Local conversion: HTML files converted to markdown using Crawl4AI file:// URLs
+  - Purpose: Bypass CAPTCHA blocking on shortlist pages
 
-**Output**: `extracted/markdown/*.md` with clean, LLM-optimized markdown
+**Output**: `03_OUTPUTS_COMPLETE/markdown/*.md` with clean, LLM-optimized markdown
 
 ---
 
 ## Parameters & Configuration
 
-### Browser Configuration (`docs/CONFIG/browser.yml`)
+### Browser Configuration (`02_CONFIGURATION/CONFIG/browser.yml`)
 ```yaml
 headless: true
-text_mode: true
-user_agent: "Crawl4AI/0.7 (FHIR R4 Documentation Crawler; Symphony Corp)"
+text_mode: false
+user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 verbose: true
+simulate_user: true
+override_navigator: true
 ```
 
-### Crawler Configuration (`docs/CONFIG/crawler.yml`)
+### Crawler Configuration (`02_CONFIGURATION/CONFIG/crawler.yml`)
 ```yaml
 cache_mode: enabled
 wait_until: domcontentloaded
@@ -110,27 +115,31 @@ verbose: true
 ## Outputs
 
 ### 1. Inventory
-- `inventory/links.csv`: Full URL inventory with metadata
-- `inventory/summary.md`: Statistics and metrics
+- `01_INPUTS_VALIDATED/inventory/links.csv`: Full URL inventory with metadata
+- `01_INPUTS_VALIDATED/inventory/summary.md`: Statistics and metrics
 
 ### 2. Shortlist
-- `shortlist/urls.txt`: 10 selected URLs
-- `shortlist/rationale.md`: Selection criteria
+- `01_INPUTS_VALIDATED/shortlist/urls.txt`: 10 selected URLs
+- `01_INPUTS_VALIDATED/shortlist/rationale.md`: Selection criteria
 
 ### 3. Extracted Content
-- `extracted/markdown/*.md`: Clean markdown files with metadata headers
+- `03_OUTPUTS_COMPLETE/markdown/*.md`: Clean markdown files (55 total)
+- `03_OUTPUTS_COMPLETE/README.md`: Output reference guide
 
 ### 4. Documentation
-- `docs/README.md` (this file): Methodology
-- `docs/PROVENANCE.md`: Execution provenance
-- `docs/README.pdf`: Styled PDF version
-- `docs/PROVENANCE.pdf`: Styled PDF version
-- `docs/CONFIG/`: All configuration files and code
+- `00_MANIFEST.md`: Package manifest
+- `00_DOCUMENTATION/README.md` (this file): Methodology
+- `00_DOCUMENTATION/PROVENANCE.md`: Execution provenance
+- `00_DOCUMENTATION/EXTRACTION_METHODOLOGY.md`: Hybrid approach details
+- `02_CONFIGURATION/CONFIG/`: All configuration files and code
 
-### 5. Logs
+### 5. Validation Reports
+- `04_VALIDATION_REPORTS/COMPREHENSIVE_VALIDATION_REPORT.md`: Complete QA audit
+- `04_VALIDATION_REPORTS/CRITICAL_DATA_QUALITY_ISSUES.md`: Issue remediation log
+
+### 6. Logs
 - `logs/inventory_bfs.json`: Raw crawler output
-- `logs/extraction_log.txt`: Extraction logs
-- `logs/errors.log`: Any errors encountered
+- `logs/extraction_*.log`: Extraction logs
 
 ---
 
@@ -157,13 +166,16 @@ verbose: true
 
 ## Reproducibility
 
-All commands, configurations, and code are included in `docs/CONFIG/`. To reproduce:
+All commands, configurations, and code are preserved in the numbered folder structure. To reproduce:
 
 1. Install dependencies: `pip install -r requirements.txt`
 2. Run setup: `bash scripts/01_setup_environment.sh`
-3. Execute pipeline: `bash scripts/run_all.sh`
+3. Run inventory: `bash scripts/02_run_inventory.sh`
+4. Create shortlist: `python scripts/03_create_shortlist.py`
+5. Extract markdown: `python scripts/04_extract_markdown.py`
+6. Convert local HTML: `python scripts/08_convert_local_html.py downloads/site 03_OUTPUTS_COMPLETE/markdown`
 
-See `docs/PROVENANCE.md` for exact execution details.
+See `00_DOCUMENTATION/PROVENANCE.md` and `00_DOCUMENTATION/EXTRACTION_METHODOLOGY.md` for exact execution details.
 
 ---
 

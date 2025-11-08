@@ -99,7 +99,7 @@ find 03_OUTPUTS_COMPLETE/markdown -name "*.md" -size -10k
 
 **Results**:
 - Files under 10KB: 0
-- Smallest file: terminologies.md (34KB)
+- Smallest file: searchform_html.md (10.5KB)
 - Largest file: explanationofbenefit.md (699KB)
 - Average file size: ~50KB
 
@@ -407,7 +407,7 @@ See `CRITICAL_DATA_QUALITY_ISSUES.md` for complete remediation log.
 All critical validation checks passed with 100% success rate:
 - ✅ 10/10 shortlist pages successfully extracted
 - ✅ 0 CAPTCHA pages in final output
-- ✅ All files contain substantial FHIR content (34KB-699KB)
+- ✅ All files contain substantial FHIR content (10.5KB-699KB)
 - ✅ 100% UTF-8 encoding compliance
 - ✅ All files have valid YAML metadata
 - ✅ R4-only content confirmed (no version mixing)
@@ -426,7 +426,7 @@ This package is **production-ready** for:
 
 Downstream consumers can:
 1. Load markdown files directly without re-validation
-2. Trust file sizes as quality indicators (all >34KB)
+2. Trust file sizes as quality indicators (ranging from 10.5KB to 699KB)
 3. Use metadata headers for filtering and organization
 4. Reproduce extraction using configs in `02_CONFIGURATION/`
 

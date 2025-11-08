@@ -161,7 +161,7 @@ async with AsyncWebCrawler() as crawler:
 **After Resolution**:
 - Shortlist success rate: 100% (10/10) ✅
 - CAPTCHA pages: 0 files ✅
-- File sizes: 34KB-699KB (substantial content) ✅
+- File sizes: 10.5KB-699KB (substantial content) ✅
 
 **Verification Commands**:
 ```bash

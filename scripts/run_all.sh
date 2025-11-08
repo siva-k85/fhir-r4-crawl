@@ -7,15 +7,14 @@ echo "╔═══════════════════════�
 echo "║  FHIR R4 Documentation Crawler - Full Pipeline  ║"
 echo "╚═══════════════════════════════════════════════╝"
 echo ""
-echo "This will run all 6 steps sequentially:"
+echo "This will run all 5 steps sequentially:"
 echo "  1. Environment setup"
 echo "  2. Inventory scan"
 echo "  3. Shortlist creation"
-echo "  4. Markdown extraction"
-echo "  5. Documentation & PDFs"
-echo "  6. Package & GitHub prep"
+echo "  4. Markdown extraction (web crawl)"
+echo "  5. Local HTML conversion (from official download)"
 echo ""
-echo "Estimated time: 40-50 minutes"
+echo "Estimated time: 20-30 minutes"
 echo ""
 read -p "Continue? (y/n) " -n 1 -r
 echo ""
@@ -46,18 +45,18 @@ python scripts/03_create_shortlist.py
 
 # Step 4: Extraction
 echo ""
-echo "▶ Running Step 4: Markdown Extraction"
+echo "▶ Running Step 4: Markdown Extraction (Web Crawl)"
 python scripts/04_extract_markdown.py
 
-# Step 5: Documentation
+# Step 5: Local HTML Conversion
 echo ""
-echo "▶ Running Step 5: Documentation & PDFs"
-python scripts/05_generate_docs_and_pdfs.py
-
-# Step 6: Package
-echo ""
-echo "▶ Running Step 6: Package & GitHub Prep"
-bash scripts/06_package_and_push.sh
+echo "▶ Running Step 5: Local HTML Conversion"
+# Note: Requires fhir-spec.zip to be downloaded and extracted to downloads/site
+if [ -d "downloads/site" ]; then
+    python scripts/08_convert_local_html.py downloads/site 03_OUTPUTS_COMPLETE/markdown
+else
+    echo "⚠️  Skipping: downloads/site not found. Download fhir-spec.zip first."
+fi
 
 # Calculate duration
 END_TIME=$(date +%s)
@@ -73,12 +72,11 @@ echo ""
 echo "Duration: ${MINUTES}m ${SECONDS}s"
 echo ""
 echo "Outputs:"
-echo "  • inventory/links.csv & summary.md"
-echo "  • shortlist/urls.txt & rationale.md"
-echo "  • extracted/markdown/*.md"
-echo "  • docs/README.md & README.pdf"
-echo "  • docs/PROVENANCE.md & PROVENANCE.pdf"
-echo "  • output/FHIR_R4_crawl_$(date +%Y-%m-%d).zip"
+echo "  • 01_INPUTS_VALIDATED/inventory/ (links.csv, summary.md)"
+echo "  • 01_INPUTS_VALIDATED/shortlist/ (urls.txt, rationale.md)"
+echo "  • 03_OUTPUTS_COMPLETE/markdown/*.md (55 files)"
+echo "  • 00_DOCUMENTATION/ (README.md, PROVENANCE.md, EXTRACTION_METHODOLOGY.md)"
+echo "  • 04_VALIDATION_REPORTS/ (comprehensive + critical issues)"
 echo ""
-echo "Next: Push to GitHub with 'git push -u origin main'"
+echo "Next: Review outputs and push to GitHub"
 echo ""

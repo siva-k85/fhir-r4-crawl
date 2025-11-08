@@ -15,8 +15,8 @@ if [ -z "$VIRTUAL_ENV" ]; then
 fi
 
 # Check required files
-if [ ! -f "docs/CONFIG/browser.yml" ] || [ ! -f "docs/CONFIG/crawler.yml" ]; then
-    echo "❌ Configuration files not found. Please ensure browser.yml and crawler.yml exist."
+if [ ! -f "02_CONFIGURATION/CONFIG/browser.yml" ] || [ ! -f "02_CONFIGURATION/CONFIG/crawler.yml" ]; then
+    echo "❌ Configuration files not found. Please ensure browser.yml and crawler.yml exist in 02_CONFIGURATION/CONFIG/."
     exit 1
 fi
 
@@ -28,8 +28,8 @@ echo "  Max pages: 400"
 echo ""
 
 crwl crawl https://hl7.org/fhir/R4/ \
-    -B docs/CONFIG/browser.yml \
-    -C docs/CONFIG/crawler.yml \
+    -B 02_CONFIGURATION/CONFIG/browser.yml \
+    -C 02_CONFIGURATION/CONFIG/crawler.yml \
     --deep-crawl bfs \
     --max-pages 400 \
     -o all \
@@ -40,7 +40,7 @@ echo ""
 
 # Parse JSON to CSV
 echo "→ Parsing results to CSV..."
-python -m src.inventory_builder logs/inventory_bfs.json inventory
+python -m src.inventory_builder logs/inventory_bfs.json 01_INPUTS_VALIDATED/inventory
 
 echo ""
 echo "═══════════════════════════════════════════════"
@@ -49,8 +49,8 @@ echo "════════════════════════�
 echo ""
 echo "Generated files:"
 echo "  • logs/inventory_bfs.json (raw output)"
-echo "  • inventory/links.csv (parsed links)"
-echo "  • inventory/summary.md (statistics)"
+echo "  • 01_INPUTS_VALIDATED/inventory/links.csv (parsed links)"
+echo "  • 01_INPUTS_VALIDATED/inventory/summary.md (statistics)"
 echo ""
 echo "Next step:"
 echo "  python scripts/03_create_shortlist.py"

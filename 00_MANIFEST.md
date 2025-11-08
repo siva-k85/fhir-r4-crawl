@@ -73,7 +73,7 @@ Exact configurations used for extraction runs, ensuring reproducibility.
 Clean, LLM-ready markdown extractions with metadata headers.
 
 **Subfolders**:
-- `markdown/` - 55 validated markdown files (34KB - 699KB each)
+- `markdown/` - 55 validated markdown files (10.5KB - 699KB, average ~50KB)
   - 10 shortlist pages (Patient, Coverage, ExplanationOfBenefit, etc.)
   - 45 auxiliary pages (index, modules, foundation, security, etc.)
 - `README.md` - Output reference with file listing and usage examples
@@ -164,7 +164,7 @@ python scripts/04_extract_markdown.py  # Uses configs in 02_CONFIGURATION/
 | Shortlist Extraction | ✅ PASS | 10/10 pages successfully extracted |
 | Content Quality | ✅ PASS | All files contain actual FHIR documentation |
 | CAPTCHA Detection | ✅ PASS | No CAPTCHA pages in final output |
-| File Size Validation | ✅ PASS | All files 34KB-699KB (substantial content) |
+| File Size Validation | ✅ PASS | All files 10.5KB-699KB (substantial content) |
 | UTF-8 Encoding | ✅ PASS | All markdown files valid UTF-8 |
 | Metadata Headers | ✅ PASS | All files have YAML frontmatter |
 | R4 Version Purity | ✅ PASS | No R5/R4B/R3 content in extractions |
