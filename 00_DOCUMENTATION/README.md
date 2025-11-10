@@ -1,4 +1,142 @@
-# FHIR R4 Documentation Crawler - Methodology
+# FHIR R4 Documentation Crawler
+
+**Last Updated**: 2025-11-10
+
+## Quick Start: Pre-Crawl Methodology
+
+### One-Command Pipeline
+
+Run the complete pre-crawl discovery, filtering, and depth optimization for your project:
+
+```bash
+# For Andor Health System (Provider-focused)
+bash scripts/integrate_pre_crawl.sh andor
+
+# For WHIO APCD (Payer-focused)
+bash scripts/integrate_pre_crawl.sh whio
+
+# For both projects
+bash scripts/integrate_pre_crawl.sh both
+```
+
+**What this does:**
+1. Discovers ~2,000-5,000 FHIR R4 URLs using Crawl4AI URL Seeding (HEAD extraction only, no full page rendering)
+2. Validates URLs (R4-only, HL7 domain, deduplication)
+3. Categorizes URLs into FHIR taxonomy (resource, profile, operation, valueset, etc.)
+4. Filters URLs using project-specific BM25 queries and required resources
+5. Assigns optimal crawl depths (0-3) based on relevance
+6. Estimates time/token costs with 70-80% savings vs full crawl
+7. Generates comprehensive reports
+
+**Output Files:**
+- `outputs/{project}_urls_with_depth.csv` - Final curated URL list with depths
+- `outputs/{project}_cost_estimate.json` - Time/token cost analysis
+- `outputs/pre_crawl_summary.md` - Pipeline summary
+
+### Manual Pipeline Steps
+
+If you need fine-grained control, run each stage individually:
+
+#### 1. Discovery
+```bash
+python3 scripts/pre_crawl_discovery.py \
+  -c 02_CONFIGURATION/configs/url_seeding_config.yml \
+  -o outputs/discovered_urls.csv
+```
+
+#### 2. Validation
+```bash
+python3 scripts/validate_urls.py \
+  outputs/discovered_urls.csv \
+  -o outputs/validated_urls.csv \
+  --report outputs/validation_report.md \
+  --strict-r4
+```
+
+#### 3. Categorization
+```bash
+python3 scripts/url_categorizer.py \
+  --input outputs/validated_urls.csv \
+  --output outputs/categorized_urls.csv \
+  --stats
+```
+
+#### 4. Project Filtering (Andor Example)
+```bash
+python3 scripts/project_filter.py \
+  outputs/categorized_urls.csv \
+  -c 02_CONFIGURATION/configs/andor_crawl_config.yml \
+  -o outputs/andor_filtered_urls.csv \
+  --stats \
+  --json outputs/andor_filter_report.json
+```
+
+#### 5. Depth Optimization (Andor Example)
+```bash
+python3 scripts/depth_optimizer.py \
+  outputs/andor_filtered_urls.csv \
+  -c 02_CONFIGURATION/configs/andor_crawl_config.yml \
+  -o outputs/andor_urls_with_depth.csv \
+  --stats
+```
+
+#### 6. Cost Estimation (Andor Example)
+```bash
+python3 scripts/cost_estimator.py \
+  outputs/andor_urls_with_depth.csv \
+  -o outputs/andor_cost_estimate.json \
+  --report outputs/andor_cost_estimate.md
+```
+
+### Project Configurations
+
+Two pre-configured projects are included:
+
+#### Andor Health System (Provider-Focused)
+- **Target**: 400-600 URLs
+- **Focus**: Clinical quality measurement, Epic EHR integration
+- **Required Resources**: Patient, Observation, Condition, Medication*, Encounter, Coverage, ExplanationOfBenefit
+- **Implementation Guides**: US Core 6.1.0, QI-Core 6.0.0, Da Vinci DEQM 3.1.0, Bulk Data 2.0.0
+- **Config**: `02_CONFIGURATION/configs/andor_crawl_config.yml`
+
+#### WHIO APCD (Payer-Focused)
+- **Target**: 200-350 URLs
+- **Focus**: All-Payer Claims Database, Blue Button 2.0 style
+- **Required Resources**: Coverage, ExplanationOfBenefit, Claim, ClaimResponse, Organization, Patient
+- **Implementation Guides**: CARIN Blue Button, US Core 6.1.0
+- **Config**: `02_CONFIGURATION/configs/whio_crawl_config.yml`
+
+### Pipeline Options
+
+```bash
+# Dry run (show commands without executing)
+bash scripts/integrate_pre_crawl.sh andor --dry-run
+
+# Limit discovery to 500 URLs (for testing)
+bash scripts/integrate_pre_crawl.sh andor --limit 500
+
+# Resume from specific stage
+bash scripts/integrate_pre_crawl.sh andor --resume-from filtering
+
+# Continue on errors
+bash scripts/integrate_pre_crawl.sh andor --continue-on-error
+```
+
+### Requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+Key dependencies:
+- `rank-bm25>=0.2.2` - BM25 scoring algorithm
+- `crawl4ai>=0.7.0` - URL seeding and discovery
+- `pandas>=2.0` - Data processing
+- `pyyaml>=6.0` - Configuration parsing
+
+---
+
+## Original Crawler Methodology
 
 **Generated**: 2025-11-07T22:54:23.096342Z
 
@@ -78,7 +216,7 @@ crwl crawl https://hl7.org/fhir/R4/ \
   - Local conversion: HTML files converted to markdown using Crawl4AI file:// URLs
   - Purpose: Bypass CAPTCHA blocking on shortlist pages
 
-**Output**: `03_OUTPUTS_COMPLETE/markdown/*.md` with clean, LLM-optimized markdown
+**Output**: `03_OUTPUTS_COMPLETE/markdown_rebuilt/*.md` (canonical, rebuilt from the official download) and `03_OUTPUTS_COMPLETE/markdown/*.md` (legacy audit snapshot)
 
 ---
 
@@ -123,7 +261,8 @@ verbose: true
 - `01_INPUTS_VALIDATED/shortlist/rationale.md`: Selection criteria
 
 ### 3. Extracted Content
-- `03_OUTPUTS_COMPLETE/markdown/*.md`: Clean markdown files (55 total)
+- `03_OUTPUTS_COMPLETE/markdown_rebuilt/*.md`: Clean markdown files (55 total, rebuilt 2025-11-08)
+- `03_OUTPUTS_COMPLETE/markdown/*.md`: Legacy extraction snapshot retained for troubleshooting
 - `03_OUTPUTS_COMPLETE/README.md`: Output reference guide
 
 ### 4. Documentation
@@ -195,6 +334,17 @@ See `00_DOCUMENTATION/PROVENANCE.md` and `00_DOCUMENTATION/EXTRACTION_METHODOLOG
 2. **Crawl4AI Documentation**: https://docs.crawl4ai.com/
 3. **Crawl4AI GitHub**: https://github.com/unclecode/crawl4ai
 4. **Project Repository**: https://github.com/siva-k85/fhir-r4-crawl
+
+## Gemini Coding Agent
+
+The repo now includes a Google Gemini coding helper wired for VS Code and CLI
+usage. See `00_DOCUMENTATION/GEMINI_AGENT.md` for setup and usage instructions.
+
+## CrewAI Support Analysis Demo
+
+Run `python scripts/crewai_support_analysis.py` to execute a three-agent CrewAI
+workflow (data analysis → process optimization → COO report). Details live in
+`00_DOCUMENTATION/CREW_AI_SUPPORT_ANALYSIS.md`.
 
 ---
 

@@ -1,0 +1,331 @@
+# Base URL Seeding Configuration
+# Version: 1.0
+# Date: November 8, 2025
+# Purpose: Base configuration for FHIR R4 URL discovery using Crawl4AI
+
+# Discovery Settings
+discovery:
+  # Primary domain
+  domain: "hl7.org"
+
+  # Discovery sources (can combine multiple)
+  sources:
+    - "sitemap"        # Use sitemap.xml
+    - "crawl"          # Use web crawling
+    # - "common_crawl"  # Use Common Crawl archive (if available)
+
+  # Base URLs to start discovery
+  start_urls:
+    - "https://hl7.org/fhir/R4/"
+    - "https://hl7.org/fhir/R4/resourcelist.html"
+    - "https://hl7.org/fhir/R4/modules.html"
+
+  # Sitemap URLs to check
+  sitemap_urls:
+    - "https://hl7.org/sitemap.xml"
+    - "https://hl7.org/sitemap_index.xml"
+    - "https://hl7.org/fhir/sitemap.xml"
+    - "https://hl7.org/fhir/R4/sitemap.xml"
+
+  # Base pattern for R4 URLs
+  pattern: "*/fhir/R4/*"
+
+  # Maximum URLs to discover (safety limit)
+  max_urls: 10000
+
+  # Discovery depth for crawling
+  max_depth: 2
+
+# HEAD Extraction Settings
+head_extraction:
+  # Enable HEAD metadata extraction
+  enabled: true
+
+  # Timeout per HEAD request (seconds)
+  timeout: 10
+
+  # Retry failed requests
+  retry_count: 2
+
+  # Fields to extract from HEAD
+  extract_metadata:
+    - title
+    - description
+    - keywords
+    - og_tags         # OpenGraph tags
+    - twitter_cards   # Twitter card metadata
+    - json_ld        # JSON-LD structured data
+    - canonical_url  # Canonical URL
+    - author
+    - last_modified
+
+  # Skip HEAD for these patterns
+  skip_patterns:
+    - "*.pdf"
+    - "*.zip"
+    - "*.xml"
+    - "*.json"
+    - "*.xsd"
+
+# BM25 Scoring Settings
+scoring:
+  # Scoring method
+  method: "bm25"  # or "simple" for keyword matching
+
+  # Default score threshold
+  score_threshold: 0.2  # Low threshold for discovery phase
+
+  # BM25 parameters
+  bm25_params:
+    k1: 1.2          # Controls term frequency saturation
+    b: 0.75          # Controls length normalization
+
+  # Fields to include in scoring
+  scoring_fields:
+    - url            # URL path components
+    - title          # Page title
+    - description    # Meta description
+    - keywords       # Meta keywords
+    - og_title       # OpenGraph title
+    - og_description # OpenGraph description
+
+  # Field weights for scoring
+  field_weights:
+    url: 1.0
+    title: 2.0       # Title is most important
+    description: 1.5
+    keywords: 1.2
+    og_title: 1.8
+    og_description: 1.3
+
+# Cache Settings
+cache:
+  # Enable caching
+  enabled: true
+
+  # Cache directory
+  cache_dir: ".cache/pre_crawl"
+
+  # Time to live (seconds)
+  ttl:
+    sitemap: 604800    # 7 days
+    head_metadata: 86400  # 1 day
+    scores: 3600       # 1 hour
+    crawl_results: 604800  # 7 days
+
+  # Maximum cache size (MB)
+  max_size: 1000
+
+# Rate Limiting
+rate_limiting:
+  # Maximum requests per second
+  max_requests_per_second: 10
+
+  # Delay between requests (seconds)
+  delay_between_requests: 0.1
+
+  # Exponential backoff on rate limit
+  backoff:
+    initial: 1.0
+    max: 60.0
+    multiplier: 2.0
+
+# Performance Settings
+performance:
+  # Maximum concurrent requests
+  max_concurrent: 20
+
+  # Batch size for processing
+  batch_size: 100
+
+  # Worker threads/processes
+  workers: 4
+
+  # Memory limits
+  max_memory_mb: 2048
+
+# Filtering Settings
+filtering:
+  # URL patterns to always exclude
+  global_exclude:
+    - "*-ballot*"
+    - "*-snapshot*"
+    - "*/history/*"
+    - "*/qa/*"
+    - "*/test/*"
+    - "*.pdf"
+    - "*.zip"
+    - "*.tar.gz"
+
+  # File extensions to exclude
+  exclude_extensions:
+    - ".pdf"
+    - ".zip"
+    - ".xml"
+    - ".xsd"
+    - ".sch"
+    - ".json"
+    - ".ttl"
+    - ".xlsx"
+    - ".docx"
+
+  # URL patterns to prioritize
+  priority_patterns:
+    - "*/fhir/R4/patient.html"
+    - "*/fhir/R4/coverage.html"
+    - "*/fhir/R4/observation.html"
+    - "*/us/core/*"
+    - "*/carin/*"
+
+  # Filter nonsense URLs
+  filter_nonsense: true
+
+# Browser Configuration (for crawling)
+browser:
+  # Run headless
+  headless: true
+
+  # Browser type
+  browser_type: "chromium"  # chromium, firefox, webkit
+
+  # User agent string
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+  # Viewport size
+  viewport:
+    width: 1920
+    height: 1080
+
+  # Extra headers
+  extra_headers:
+    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+    Accept-Language: "en-US,en;q=0.9"
+    DNT: "1"
+    Connection: "keep-alive"
+    Upgrade-Insecure-Requests: "1"
+
+  # Browser flags for anti-detection
+  extra_flags:
+    - "--disable-blink-features=AutomationControlled"
+    - "--disable-dev-shm-usage"
+    - "--no-sandbox"
+    - "--disable-gpu"
+
+# Crawler Configuration
+crawler:
+  # Cache mode
+  cache_mode: "bypass"  # bypass, enabled, disabled
+
+  # Wait strategy
+  wait_until: "domcontentloaded"  # networkidle, domcontentloaded, load
+
+  # Page timeout (milliseconds)
+  page_timeout: 30000
+
+  # Exclude external resources
+  exclude_external_links: true
+  exclude_external_images: true
+  exclude_social_media_links: true
+
+  # JavaScript execution
+  execute_js: false  # Not needed for discovery
+
+# Output Configuration
+output:
+  # Default output directory
+  output_dir: "outputs"
+
+  # File naming pattern
+  filename_pattern: "discovered_urls_{timestamp}"
+
+  # Output formats
+  formats:
+    - "csv"
+    - "json"
+
+  # CSV configuration
+  csv:
+    delimiter: ","
+    quoting: "minimal"
+    include_header: true
+
+  # JSON configuration
+  json:
+    indent: 2
+    ensure_ascii: false
+    sort_keys: true
+
+# Logging Configuration
+logging:
+  # Log level
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+  # Log file settings
+  file:
+    enabled: true
+    path: "logs/pre_crawl_discovery.log"
+    max_bytes: 10485760  # 10MB
+    backup_count: 5
+
+  # Console logging
+  console:
+    enabled: true
+    colored: true
+
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Validation Settings
+validation:
+  # Check URL validity
+  validate_urls: true
+
+  # Check for R4 only
+  r4_only: true
+
+  # Remove duplicates
+  remove_duplicates: true
+
+  # Verify accessibility (HEAD request)
+  verify_accessible: false  # Set to false for faster discovery
+
+  # Check content type
+  allowed_content_types:
+    - "text/html"
+    - "application/xhtml+xml"
+
+# Error Handling
+error_handling:
+  # Continue on errors
+  continue_on_error: true
+
+  # Maximum errors before stopping
+  max_errors: 100
+
+  # Error retry attempts
+  retry_attempts: 2
+
+  # Log errors to file
+  error_log: "logs/discovery_errors.log"
+
+# Advanced Settings
+advanced:
+  # Use async processing
+  async_processing: true
+
+  # Connection pooling
+  connection_pool:
+    size: 100
+    max_overflow: 50
+
+  # DNS caching
+  dns_cache: true
+
+  # SSL verification
+  ssl_verify: true
+
+  # Request timeout (total)
+  total_timeout: 300  # 5 minutes per batch
+
+  # Progress reporting
+  progress_interval: 10  # Report every 10 URLs

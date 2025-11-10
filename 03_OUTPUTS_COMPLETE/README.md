@@ -1,8 +1,8 @@
 # FHIR R4 Extracted Markdown - Output Reference
 
-**Output Type**: Clean, LLM-ready markdown documentation
+**Output Type**: Clean, LLM-ready markdown documentation (revalidated from local mirror)
 **Total Files**: 55 validated markdown files
-**Total Size**: ~2.7MB
+**Total Size**: ~6.6MB
 **Format**: Markdown with YAML frontmatter
 **Encoding**: UTF-8
 
@@ -12,7 +12,9 @@
 
 This directory contains **55 high-quality markdown files** extracted from FHIR R4 documentation using a validated hybrid approach:
 - **10 shortlist pages** (from official download): Patient, Coverage, ExplanationOfBenefit, and 7 shared components
-- **45 auxiliary pages** (from web crawl): Index, modules, foundation, security, terminology, and more
+- **45 auxiliary pages** (originally web crawled, now rebuilt from the official download mirror due to HL7 anti-bot redirects)
+
+> **2025-11-08 Update**: Every file was regenerated via `scripts/10_rebuild_markdown_from_local.py`, which converts the official `downloads/site` mirror (plus the public `searchform.html`) into deterministic markdown. The legacy `markdown/` folder is retained for audit trails, but all validated content now lives in `markdown_rebuilt/`.
 
 All files have been validated for:
 - ✅ Actual FHIR content (no CAPTCHA pages)
@@ -20,6 +22,13 @@ All files have been validated for:
 - ✅ Valid UTF-8 encoding
 - ✅ YAML metadata frontmatter
 - ✅ R4-only content (no version mixing)
+
+---
+
+## Directory Layout
+
+- `markdown_rebuilt/` – Canonical dataset rebuilt from the official HL7 download (55 files, ~6.6 MB). Use this folder for all downstream work.
+- `markdown/` – Original mixed-source extraction retained for traceability. The `_html.md` files here were impacted by HL7 anti-bot redirects and should be considered deprecated snapshots.
 
 ---
 
@@ -31,9 +40,9 @@ Each markdown file follows this structure:
 ---
 url: https://hl7.org/fhir/R4/patient.html
 title: Patient
-source: official_download | web_crawl
-extracted: local_file_conversion | 2025-11-07
-depth: 0
+source: official_download
+extracted: local_file_conversion
+mirror_path: patient.html
 ---
 
 # Clean markdown content follows
@@ -48,9 +57,10 @@ Demographics and other administrative information...
 **Frontmatter Fields**:
 - `url`: Original FHIR R4 URL
 - `title`: Page title
-- `source`: Extraction method (`official_download` or `web_crawl`)
+- `source`: Extraction method (`official_download` for rebuilt files, `web_crawl` for legacy snapshots)
 - `extracted`: Conversion type or date
-- `depth`: Crawl depth (for web crawl files)
+- `mirror_path`: Relative HTML path inside `downloads/site` (present on rebuilt files)
+- `depth`: Crawl depth (legacy `markdown/` files only)
 
 ---
 
@@ -162,52 +172,52 @@ Additional pages successfully extracted via web crawl:
 
 ```bash
 # View Patient resource
-cat markdown/hl7_org_fhir_R4_patient.md | less
+cat markdown_rebuilt/hl7_org_fhir_R4_patient.md | less
 
 # Extract just the Scope and Usage section
-grep -A 50 "## .*Scope and Usage" markdown/hl7_org_fhir_R4_patient.md
+grep -A 50 "## .*Scope and Usage" markdown_rebuilt/hl7_org_fhir_R4_patient.md
 
 # Check file size to confirm substantial content
-ls -lh markdown/hl7_org_fhir_R4_patient.md
+ls -lh markdown_rebuilt/hl7_org_fhir_R4_patient.md
 ```
 
 ### Search Across All Files
 
 ```bash
 # Find all mentions of "insurance"
-grep -r "insurance" markdown/ | head -20
+grep -r "insurance" markdown_rebuilt/ | head -20
 
 # Find files discussing search parameters
-grep -l "search parameter" markdown/*.md
+grep -l "search parameter" markdown_rebuilt/*.md
 
 # Count total lines of documentation
-wc -l markdown/*.md | tail -1
+wc -l markdown_rebuilt/*.md | tail -1
 ```
 
 ### List All Files
 
 ```bash
 # List by size (largest first)
-ls -lhS markdown/
+ls -lhS markdown_rebuilt/
 
 # List shortlist pages only
-ls -lh markdown/hl7_org_fhir_R4_{patient,coverage,explanationofbenefit,search,searchparameter,datatypes,structuredefinition,terminologies,codesystem,valueset}.md
+ls -lh markdown_rebuilt/hl7_org_fhir_R4_{patient,coverage,explanationofbenefit,search,searchparameter,datatypes,structuredefinition,terminologies,codesystem,valueset}.md
 
 # Count total files
-ls -1 markdown/*.md | wc -l
+ls -1 markdown_rebuilt/*.md | wc -l
 ```
 
 ### Extract Metadata
 
 ```bash
 # Get all source URLs
-head -10 markdown/*.md | grep "^url:"
+head -10 markdown_rebuilt/*.md | grep "^url:"
 
 # Check extraction source
-head -10 markdown/*.md | grep "^source:"
+head -10 markdown_rebuilt/*.md | grep "^source:"
 
 # Verify no CAPTCHA pages
-grep -l "Let's confirm you are human" markdown/*.md
+grep -l "Let's confirm you are human" markdown_rebuilt/*.md
 # (should return nothing)
 ```
 
@@ -219,7 +229,7 @@ grep -l "Let's confirm you are human" markdown/*.md
 
 ```bash
 # Check file sizes
-ls -lh markdown/*.md | awk '{print $5, $9}' | sort -h
+ls -lh markdown_rebuilt/*.md | awk '{print $5, $9}' | sort -h
 
 # Verify all files > 10KB (no CAPTCHA stubs)
 find markdown -name "*.md" -size -10k
@@ -236,15 +246,15 @@ find markdown -name "*.md" -size -10k
 
 ```bash
 # Verify FHIR headers present
-grep -c "Resource.*Content" markdown/hl7_org_fhir_R4_patient.md
+grep -c "Resource.*Content" markdown_rebuilt/hl7_org_fhir_R4_patient.md
 # (should be > 0)
 
 # Check for CAPTCHA contamination
-grep -c "Let's confirm you are human" markdown/*.md
+grep -c "Let's confirm you are human" markdown_rebuilt/*.md
 # (all counts should be 0)
 
 # Validate UTF-8 encoding
-file markdown/*.md | grep -v "UTF-8"
+file markdown_rebuilt/*.md | grep -v "UTF-8"
 # (should return nothing)
 ```
 
@@ -259,7 +269,7 @@ import frontmatter
 from pathlib import Path
 
 # Load single file
-post = frontmatter.load("markdown/hl7_org_fhir_R4_patient.md")
+post = frontmatter.load("markdown_rebuilt/hl7_org_fhir_R4_patient.md")
 print(post.metadata)  # {'url': '...', 'title': 'Patient', ...}
 print(post.content[:500])  # Markdown content
 
@@ -276,7 +286,7 @@ for md_file in markdown_dir.glob("*.md"):
 import openai
 
 # Read Patient resource doc
-with open("markdown/hl7_org_fhir_R4_patient.md") as f:
+with open("markdown_rebuilt/hl7_org_fhir_R4_patient.md") as f:
     content = f.read()
 
 # Ask LLM questions
@@ -340,8 +350,8 @@ These are likely CAPTCHA pages that should have been filtered during validation.
 
 If shortlist pages are missing:
 ```bash
-# Re-run local HTML conversion
-python scripts/08_convert_local_html.py downloads/site markdown/
+# Rebuild the canonical folder from downloads/site
+python scripts/10_rebuild_markdown_from_local.py
 ```
 
 ### Encoding Issues
@@ -349,7 +359,7 @@ python scripts/08_convert_local_html.py downloads/site markdown/
 If you encounter encoding errors:
 ```bash
 # Verify UTF-8 encoding
-file markdown/*.md
+file markdown_rebuilt/*.md
 
 # Convert if needed (should not be necessary)
 iconv -f ISO-8859-1 -t UTF-8 input.md > output.md

@@ -52,6 +52,14 @@ output/*.zip
 *.temp
 .cache/
 
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+
+# Test Outputs
+outputs/
+
 # Keep directory structure (track .gitkeep files)
 !logs/.gitkeep
 !output/.gitkeep

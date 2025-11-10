@@ -7,12 +7,13 @@ echo "╔═══════════════════════�
 echo "║  FHIR R4 Documentation Crawler - Full Pipeline  ║"
 echo "╚═══════════════════════════════════════════════╝"
 echo ""
-echo "This will run all 5 steps sequentially:"
+echo "This will run all 6 steps sequentially:"
 echo "  1. Environment setup"
 echo "  2. Inventory scan"
 echo "  3. Shortlist creation"
 echo "  4. Markdown extraction (web crawl)"
 echo "  5. Local HTML conversion (from official download)"
+echo "  6. Canonical rebuild from local mirror"
 echo ""
 echo "Estimated time: 20-30 minutes"
 echo ""
@@ -58,6 +59,11 @@ else
     echo "⚠️  Skipping: downloads/site not found. Download fhir-spec.zip first."
 fi
 
+# Step 6: Canonical Rebuild
+echo ""
+echo "▶ Running Step 6: Canonical Markdown Rebuild"
+python scripts/10_rebuild_markdown_from_local.py
+
 # Calculate duration
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
@@ -74,7 +80,8 @@ echo ""
 echo "Outputs:"
 echo "  • 01_INPUTS_VALIDATED/inventory/ (links.csv, summary.md)"
 echo "  • 01_INPUTS_VALIDATED/shortlist/ (urls.txt, rationale.md)"
-echo "  • 03_OUTPUTS_COMPLETE/markdown/*.md (55 files)"
+echo "  • 03_OUTPUTS_COMPLETE/markdown/*.md (legacy web + local snapshots)"
+echo "  • 03_OUTPUTS_COMPLETE/markdown_rebuilt/*.md (canonical mirror build)"
 echo "  • 00_DOCUMENTATION/ (README.md, PROVENANCE.md, EXTRACTION_METHODOLOGY.md)"
 echo "  • 04_VALIDATION_REPORTS/ (comprehensive + critical issues)"
 echo ""

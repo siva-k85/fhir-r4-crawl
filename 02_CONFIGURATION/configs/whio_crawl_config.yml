@@ -1,0 +1,237 @@
+# WHIO APCD - Payer-Focused Configuration
+# Version: 1.0
+# Date: November 8, 2025
+# Purpose: Configure pre-crawl discovery for WHIO All-Payer Claims Database (Payer/Financial focus)
+
+project:
+  name: "WHIO All-Payer Claims Database"
+  type: "payer"
+  focus: "Payer-focused claims and coverage data"
+  description: "All-payer claims database with Blue Button consumer access capabilities"
+
+# Required resources (must have)
+required_resources:
+  # Member/Patient management
+  - Patient
+  - RelatedPerson
+  - Person
+  - Group
+
+  # Coverage and eligibility
+  - Coverage
+  - CoverageEligibilityRequest
+  - CoverageEligibilityResponse
+  - EnrollmentRequest
+  - EnrollmentResponse
+
+  # Claims processing
+  - Claim
+  - ClaimResponse
+  - ExplanationOfBenefit
+
+  # Financial
+  - PaymentNotice
+  - PaymentReconciliation
+  - Invoice
+  - Account
+
+  # Provider network
+  - Organization
+  - Practitioner
+  - PractitionerRole
+  - OrganizationAffiliation
+
+# Preferred resources (nice to have)
+preferred_resources:
+  - Contract
+  - InsurancePlan
+  - RiskAssessment
+  - DetectedIssue
+  - Communication
+  - CommunicationRequest
+  - DocumentReference
+  - DocumentManifest
+  - Consent
+  - Provenance
+
+# Implementation Guides
+implementation_guides:
+  - name: "CARIN Blue Button"
+    url: "http://hl7.org/fhir/us/carin-bb/"
+    url_pattern: "*carin*"
+    version: "2.0.0"
+    priority: "high"
+
+  - name: "Da Vinci PDEX"
+    url: "http://hl7.org/fhir/us/davinci-pdex/"
+    url_pattern: "*davinci-pdex*"
+    version: "2.0.0"
+    priority: "medium"
+
+  - name: "Da Vinci PAS"
+    url: "http://hl7.org/fhir/us/davinci-pas/"
+    url_pattern: "*davinci-pas*"
+    version: "1.2.0"
+    priority: "low"
+
+  - name: "Da Vinci CRD"
+    url: "http://hl7.org/fhir/us/davinci-crd/"
+    url_pattern: "*davinci-crd*"
+    version: "2.0.0"
+    priority: "low"
+
+# BM25 Scoring Queries
+bm25_queries:
+  # Primary payer focus
+  - "coverage claim explanation of benefit payer insurance member"
+  - "claim response adjudication payment financial remittance"
+
+  # Member management
+  - "patient member beneficiary subscriber enrollment eligibility"
+  - "coverage eligibility request response verification authorization"
+
+  # Blue Button / CARIN specific
+  - "CARIN Blue Button consumer directed exchange patient access"
+  - "consumer portal member api oauth smart fhir"
+
+  # APCD specific
+  - "all-payer claims database APCD reporting analytics"
+  - "claims aggregation population health cost analysis"
+
+  # Financial operations
+  - "payment reconciliation invoice billing remittance advice"
+  - "prior authorization coverage determination benefit"
+
+  # Provider network
+  - "provider network organization practitioner affiliation"
+  - "in-network out-of-network provider directory"
+
+# URL Filtering Patterns
+filter_patterns:
+  include:
+    # Core R4 resources
+    - "*/fhir/R4/*"
+    - "*/fhir/r4/*"
+
+    # Payer-specific resources
+    - "*coverage*"
+    - "*claim*"
+    - "*explanationofbenefit*"
+    - "*payment*"
+    - "*eligibility*"
+    - "*enrollment*"
+
+    # CARIN specific
+    - "*carin*"
+    - "*blue-button*"
+    - "*consumer*"
+
+    # DaVinci IGs
+    - "*davinci-pdex*"
+    - "*davinci-pas*"
+    - "*davinci-crd*"
+
+    # Financial module
+    - "*financial*"
+    - "*billing*"
+    - "*administration*"
+
+  exclude:
+    # Version exclusions
+    - "*/fhir/R5/*"
+    - "*/fhir/R4B/*"
+    - "*/fhir/R3/*"
+    - "*-ballot*"
+    - "*-snapshot*"
+
+    # Clinical (not primary focus for payers)
+    - "*/observation*.html"
+    - "*/procedure*.html"
+    - "*/medication*.html"
+    - "*/diagnosticreport*.html"
+    - "*/specimen*.html"
+    - "*/bodystructure*.html"
+
+    # Clinical modules
+    - "*clinical-module*"
+    - "*diagnostics-module*"
+    - "*medications-module*"
+
+    # Low-value content
+    - "*-questionnaire.html"
+    - "*-spreadsheet.xml"
+    - "*.xsd"
+    - "*.sch"
+    - "*.zip"
+
+    # Examples (minimal for payers)
+    - "*/examples/*"  # Will include if score > 0.9
+
+# Scoring Configuration
+scoring:
+  score_threshold: 0.4  # Higher threshold for focused selection
+
+  category_weights:
+    resource: 1.0        # Highest priority
+    module: 0.7          # Lower for payers
+    implementation: 0.9  # High priority
+    valueset: 0.75       # Medium-high priority
+    codesystem: 0.75     # Medium-high priority
+    operation: 0.7       # Medium priority
+    example: 0.3         # Very low priority
+    profile: 0.85        # High priority
+    extension: 0.7       # Medium priority
+    searchparameter: 0.6 # Lower priority
+
+# Depth Strategy
+depth_strategy:
+  resource: 0           # Just the definition
+  module: 0             # Definitions only
+  implementation: 1     # IG main + key profiles
+  valueset: 1           # ValueSet + codes
+  codesystem: 1         # CodeSystem + codes
+  operation: 0          # Just the operation
+  example: 0            # Skip most examples
+  profile: 0            # Just the profile
+  extension: 0          # Just the extension
+  searchparameter: 0    # Just the parameter
+
+# URL Limits
+max_urls:
+  total: 350            # Target range: 200-350
+
+  per_category:
+    resource: 150       # Financial/administrative resources
+    module: 30          # Financial and admin modules
+    implementation: 60  # CARIN, Da Vinci
+    valueset: 70        # Payer-relevant value sets
+    codesystem: 40      # Payer code systems
+    operation: 20       # Key operations
+    example: 20         # Minimal examples
+    profile: 60         # CARIN profiles
+    extension: 30       # Payer extensions
+    searchparameter: 20 # Search parameters
+
+# Performance Settings
+performance:
+  max_concurrent: 20    # Concurrent HEAD requests
+  batch_size: 100       # URLs per batch
+  timeout: 10           # Seconds per request
+  retry_count: 2        # Retries on failure
+  cache_ttl: 604800     # 7 days cache
+  rate_limit: 10        # Requests per second
+
+# Output Settings
+output:
+  format: "csv"         # csv or json
+  include_metadata: true
+  include_scores: true
+  sort_by: "score"      # score, category, or url
+
+# Validation Settings
+validation:
+  require_all_essential: true
+  min_ig_coverage: 0.7  # 70% of IG resources
+  check_r4_only: true
+  exclude_draft: true
+  require_carin: true   # Must include CARIN resources

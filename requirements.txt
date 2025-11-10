@@ -7,6 +7,9 @@ beautifulsoup4>=4.12.0
 # Data Processing
 pandas>=2.1.0
 pyyaml>=6.0.0
+rank-bm25>=0.2.2
+tqdm>=4.65.0
+lxml>=4.9.0
 
 # PDF Generation
 WeasyPrint>=60.0
@@ -16,6 +19,12 @@ Pygments>=2.17.0
 # Utilities
 python-dateutil>=2.8.0
 requests>=2.31.0
+
+# LLM Agent
+google-generativeai==0.8.5
+
+# Agent Orchestration
+crewai==0.11.2  # Using version compatible with Python 3.14
 
 # Optional: Firecrawl API
 # firecrawl-py>=0.1.0  # Uncomment if using Firecrawl cross-check
